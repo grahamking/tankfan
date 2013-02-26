@@ -42,15 +42,26 @@ public class MainActivity extends Activity {
 				null,	// order by
 				null);	// limit
 
-		String[] fromColumns = new String[]{"brewery", "name", "description"};
-		int[] toViews = new int[]{R.id.beerBrewery, R.id.beerName, R.id.beerDescription};
+		String[] fromColumns = new String[]{
+				"pic", 
+				"brewery", 
+				"name", 
+				"style", 
+				"abv", 
+				"description"};
+		int[] toViews = new int[]{
+				R.id.beerPic, 
+				R.id.beerBrewery, 
+				R.id.beerName, 
+				R.id.beerStyle, 
+				R.id.beerABV, 
+				R.id.beerDescription};
 		
-		@SuppressWarnings("deprecation")
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+		BeerAdapter adapter = new BeerAdapter(
 				this, 
-				R.layout.beer_row, 
+				R.layout.beer_row,
 				cursor, 
-				fromColumns, 
+				fromColumns,
 				toViews);
 		
 		ListView beerList = (ListView) findViewById(R.id.beerList);

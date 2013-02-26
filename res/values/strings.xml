@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
 	<string name="beer"><b>Beer</b></string>
 	<string name="events"><b>Events</b></string>
+	<string name="beerPicDesc">Beer image or brewery logo</string>
 	
 </resources>

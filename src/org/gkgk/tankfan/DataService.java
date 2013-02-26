@@ -1,5 +1,6 @@
 package org.gkgk.tankfan;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -220,6 +221,16 @@ public class DataService extends IntentService {
 	private void downloadPics(List<String> allURLs) {
 
 		for (String urlStr : allURLs) {
+			
+			String filename = String.valueOf(Math.abs(urlStr.hashCode())) + ".png";
+			Log.d(TAG, filename + " = " + urlStr);
+			
+			File fullpath = new File(getFilesDir(), filename);
+			if (fullpath.exists()) {
+				Log.d(TAG, "Already exists, skipping");
+				continue;
+			}
+			
 			Log.d(TAG, "Downloading: " + urlStr);
 			URL newurl;
 			try{
@@ -239,8 +250,6 @@ public class DataService extends IntentService {
 				continue;
 			}
 			
-			String filename = String.valueOf(Math.abs(urlStr.hashCode())) + ".png";
-			Log.d(TAG, filename + " = " + urlStr);
 			try {
 				FileOutputStream outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
 				image.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
@@ -249,8 +258,6 @@ public class DataService extends IntentService {
 				Log.e(TAG, "FileNotFoundException creating " + filename, exc);
 			}
 		}
-		
-		// BitmapFactory.decodeFile(filename);
-		//profile_photo.setImageBitmap(mIcon_val);
+
 	}
 }
