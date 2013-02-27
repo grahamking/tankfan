@@ -30,40 +30,9 @@ public class MainActivity extends Activity {
 	}
 
 	private void fillBeer() {
-		
-		Cursor cursor = this.db.query(
-				false,	// distinct,
-				DBHelper.BEERS_TABLE,
-				null,	// columns
-				null,	// where
-				null,	// where args
-				null,	// group by
-				null, 	// having
-				null,	// order by
-				null);	// limit
 
-		String[] fromColumns = new String[]{
-				"pic", 
-				"brewery", 
-				"name", 
-				"style", 
-				"abv", 
-				"description"};
-		int[] toViews = new int[]{
-				R.id.beerPic, 
-				R.id.beerBrewery, 
-				R.id.beerName, 
-				R.id.beerStyle, 
-				R.id.beerABV, 
-				R.id.beerDescription};
-		
-		BeerAdapter adapter = new BeerAdapter(
-				this, 
-				R.layout.beer_row,
-				cursor, 
-				fromColumns,
-				toViews);
-		
+		BeerAdapter adapter = new BeerAdapter(this);
+
 		ListView beerList = (ListView) findViewById(R.id.beerList);
 		beerList.setAdapter(adapter);
 	}
