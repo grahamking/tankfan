@@ -58,6 +58,15 @@ public class DataService extends IntentService {
 		this.parse();
 		this.save();
 		this.downloadPics(this.allURLs());
+		
+		this.broadcastComplete();
+	}
+	
+	/**
+	 * Tell the world (MainActivity) we're finished loading everything 
+	 */
+	private void broadcastComplete() {
+		// TODO
 	}
 	
 	/**

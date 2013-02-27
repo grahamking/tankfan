@@ -7,17 +7,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -138,6 +141,23 @@ public class BeerAdapter implements ListAdapter {
 		((TextView) view.findViewById(R.id.beerStyle)).setText(obj.get("style"));
 		((TextView) view.findViewById(R.id.beerABV)).setText(obj.get("abv"));
 		((TextView) view.findViewById(R.id.beerDescription)).setText(obj.get("description"));
+		
+		final String linkURL = obj.get("url");
+		if (linkURL != null && linkURL.length() != 0) {
+			
+			View.OnClickListener clicky = new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(linkURL));
+					BeerAdapter.this.context.startActivity(intent);
+				}
+			};
+			
+			((LinearLayout) view.findViewById(R.id.beerRow)).setOnClickListener(clicky);
+			((LinearLayout) view.findViewById(R.id.beerRowText1)).setOnClickListener(clicky);
+			((LinearLayout) view.findViewById(R.id.beerRowText2)).setOnClickListener(clicky);
+		}
 		
 		return view;
 	}
