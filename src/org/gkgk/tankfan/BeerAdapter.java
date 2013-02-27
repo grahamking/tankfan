@@ -27,17 +27,17 @@ import android.widget.TextView;
 public class BeerAdapter implements ListAdapter {
 
 	private static final String TAG = BeerAdapter.class.getSimpleName();
-	
+
 	Context context;
 	SQLiteDatabase db;
 	Cursor cursor;
-	
+
 	public BeerAdapter(Context context) {
 		this.context = context;
-		
+
 		DBHelper helper = new DBHelper(this.context, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
 		this.db = helper.getReadableDatabase();
-		
+
 		this.cursor = db.query(
 				false,	// distinct,
 				DBHelper.BEERS_TABLE,
@@ -52,11 +52,8 @@ public class BeerAdapter implements ListAdapter {
 
 	public void setPic(ImageView v, String urlStr) {
 
-		Log.d(TAG, "urlStr: " + urlStr);
-		
 		String filename = String.valueOf(Math.abs(urlStr.hashCode())) + ".png";
-		Log.d(TAG, "filename: " + filename);
-		
+
 		FileInputStream inputStream = null;
 		try {
 			inputStream = this.context.openFileInput(filename);
@@ -65,10 +62,10 @@ public class BeerAdapter implements ListAdapter {
 			Log.d(TAG, "FileNotFoundException: " + filename);
 			return;
 		}
-		Log.d(TAG, "LOADED!");
+
 		Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 		v.setImageBitmap(bitmap);
-		
+
 		try {
 			inputStream.close();
 		}
@@ -76,10 +73,10 @@ public class BeerAdapter implements ListAdapter {
 			Log.e(TAG, "IOException closing " + filename);
 		}
 	}
-	
+
 	@Override
 	public void registerDataSetObserver(DataSetObserver observer) {
-		// TODO Auto-generated method stub		
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -94,18 +91,18 @@ public class BeerAdapter implements ListAdapter {
 
 	@Override
 	public Map<String, String> getItem(int position) {
-		
+
 		this.cursor.moveToPosition(position);
-		
+
 		// Object model? What object model?
 		String value;
 		Map<String, String> obj = new HashMap<String, String>();
-		
+
 		for (String col : this.cursor.getColumnNames()) {
 			value = this.cursor.getString(this.cursor.getColumnIndex(col));
 			obj.put(col, value);
 		}
-		
+
 		return obj;
 	}
 
@@ -121,9 +118,9 @@ public class BeerAdapter implements ListAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		
+
 		Map<String, String> obj = this.getItem(position);
-		
+
 		View view = convertView;
 		if (view == null) {
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -135,38 +132,38 @@ public class BeerAdapter implements ListAdapter {
 			picURL = this.getBreweryPic(obj.get("brewery"));
 		}
 		this.setPic((ImageView) view.findViewById(R.id.beerPic), picURL);
-		
+
 		((TextView) view.findViewById(R.id.beerBrewery)).setText(obj.get("brewery"));
 		((TextView) view.findViewById(R.id.beerName)).setText(obj.get("name"));
 		((TextView) view.findViewById(R.id.beerStyle)).setText(obj.get("style"));
 		((TextView) view.findViewById(R.id.beerABV)).setText(obj.get("abv"));
 		((TextView) view.findViewById(R.id.beerDescription)).setText(obj.get("description"));
-		
+
 		final String linkURL = obj.get("url");
 		if (linkURL != null && linkURL.length() != 0) {
-			
+
 			View.OnClickListener clicky = new View.OnClickListener() {
-				
+
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(linkURL));
 					BeerAdapter.this.context.startActivity(intent);
 				}
 			};
-			
+
 			((LinearLayout) view.findViewById(R.id.beerRow)).setOnClickListener(clicky);
 			((LinearLayout) view.findViewById(R.id.beerRowText1)).setOnClickListener(clicky);
 			((LinearLayout) view.findViewById(R.id.beerRowText2)).setOnClickListener(clicky);
 		}
-		
+
 		return view;
 	}
 
 	private String getBreweryPic(String breweryName) {
-		
+
 		String[] columns = new String[]{"logo"};
 		String[] whereArgs = new String[]{breweryName};
-		
+
 		Cursor bCur = db.query(
 				false,	// distinct,
 				DBHelper.BREWERIES_TABLE,
@@ -177,14 +174,14 @@ public class BeerAdapter implements ListAdapter {
 				null, 	// having
 				null,	// order by
 				null);	// limit
-		
+
 		bCur.moveToFirst();
 		String logo = bCur.getString(bCur.getColumnIndex("logo"));
 		bCur.close();
-		
+
 		return logo;
 	}
-	
+
 	@Override
 	public int getItemViewType(int position) {
 		// TODO Auto-generated method stub
@@ -209,6 +206,6 @@ public class BeerAdapter implements ListAdapter {
 	@Override
 	public boolean isEnabled(int position) {
 		return true;
-	}	
-	
+	}
+
 }
