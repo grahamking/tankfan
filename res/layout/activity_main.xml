@@ -15,22 +15,22 @@
         android:text="@string/beer" />
 
     <ListView
-        android:id="@+id/beerList" 
+        android:id="@+id/beerList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:divider="#DDD"
         android:dividerHeight="1px"
-        android:padding="5dip" 
+        android:padding="5dip"
         />
-    
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/events" />
-    
-    <ListView 
-        android:id="@+id/eventList" 
+
+    <ListView
+        android:id="@+id/eventList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
