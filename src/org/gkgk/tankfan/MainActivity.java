@@ -1,6 +1,8 @@
 package org.gkgk.tankfan;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
@@ -28,27 +30,17 @@ public class MainActivity extends Activity {
 
 		Intent fetcherIntent = new Intent(this, DataService.class);
 		startService(fetcherIntent);
+        this.setRepeatingService();
 
 		setContentView(R.layout.activity_main);
-
-        this.refreshDisplay();
     }
-
-    /**
-     * Load data from db and display it.
-     */
-    void refreshDisplay() {
-
-		DBHelper helper = new DBHelper(this, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
-		this.db = helper.getReadableDatabase();
-
-		this.fillBeer();
-		this.fillEvents();
-	}
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        this.refreshDisplay();
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(DataService.DATA_UPDATED);
         registerReceiver(this.receiver, filter);
@@ -59,6 +51,44 @@ public class MainActivity extends Activity {
         super.onPause();
         unregisterReceiver(this.receiver);
     }
+
+    /**
+     * Set an alarm to run the service regularly,
+     * to keep local database up to date.
+     */
+    private void setRepeatingService() {
+
+        Intent fetcherIntent = new Intent(this, DataService.class);
+        PendingIntent alarmIntent = PendingIntent.getService(
+                this, 0, fetcherIntent, 0);
+
+        AlarmManager aman = (AlarmManager) getSystemService(
+                Context.ALARM_SERVICE);
+
+        aman.setInexactRepeating(
+                AlarmManager.ELAPSED_REALTIME,
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                alarmIntent);
+    }
+
+    /**
+     * Load data from db and display it.
+     */
+    void refreshDisplay() {
+
+		DBHelper helper = new DBHelper(
+                this,
+                DBHelper.DB_NAME,
+                null,
+                DBHelper.DB_VERSION);
+		this.db = helper.getReadableDatabase();
+
+		this.fillBeer();
+		this.fillEvents();
+
+        this.db.close();
+	}
 
 	private void fillBeer() {
 
@@ -98,7 +128,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
+		// Inflate the menu; this adds items to the action bar if it is present
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
