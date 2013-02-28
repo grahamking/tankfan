@@ -3,10 +3,9 @@ package org.gkgk.tankfan;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,50 +29,13 @@ public class BeerAdapter implements ListAdapter {
 
 	private static final String TAG = BeerAdapter.class.getSimpleName();
 
-    Cursor cursor;
 	Context context;
-    DBHelper helper;
 
     List<Map<String, String>> data = new ArrayList<Map<String, String>>();
 
 	public BeerAdapter(Context context) {
 		this.context = context;
-
-		this.helper = new DBHelper(this.context, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
-	    SQLiteDatabase db = this.helper.getReadableDatabase();
-
-		this.cursor = db.query(
-				false,	// distinct,
-				DBHelper.BEERS_TABLE,
-				null,	// columns
-				null,	// where
-				null,	// where args
-				null,	// group by
-				null, 	// having
-				null,	// order by
-				null);	// limit
-
-        while (this.cursor.moveToNext()) {
-            data.add(this.loadNext());
-        }
-        this.cursor.close();
-        db.close();
-	}
-
-    /**
-     * Load the next item from the cursor into a map.
-     */
-    private Map<String, String> loadNext() {
-		// Object model? What object model?
-		String value;
-		Map<String, String> obj = new HashMap<String, String>();
-
-		for (String col : this.cursor.getColumnNames()) {
-			value = this.cursor.getString(this.cursor.getColumnIndex(col));
-			obj.put(col, value);
-		}
-
-		return obj;
+        this.data = new AdapterHelper(context, DBHelper.BEERS_TABLE).load();
 	}
 
 	public void setPic(ImageView v, String urlStr) {
@@ -133,13 +95,19 @@ public class BeerAdapter implements ListAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
+        Log.d(TAG, "BeerAdapter.getView. position: " + position +
+                   " converView type: " + convertView);
+
 		Map<String, String> obj = this.getItem(position);
 
 		View view = convertView;
 		if (view == null) {
+            Log.d(TAG, "Creating new R.layout.beer_row");
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			view = inflater.inflate(R.layout.beer_row, null);
-		}
+		} else {
+            Log.d(TAG, "Using layout given as convertView");
+        }
 
 		String picURL = obj.get("pic");
 		if (picURL == null || picURL.length() == 0) {
@@ -176,7 +144,9 @@ public class BeerAdapter implements ListAdapter {
 	private String getBreweryPic(String breweryName) {
         Log.d(TAG, "getBreweryPic: " + breweryName);
 
-	    SQLiteDatabase db = this.helper.getReadableDatabase();
+		DBHelper helper = new DBHelper(
+                this.context, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
+	    SQLiteDatabase db = helper.getReadableDatabase();
 
 		String[] columns = new String[]{"logo"};
 		String[] whereArgs = new String[]{breweryName};

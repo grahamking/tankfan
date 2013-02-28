@@ -28,6 +28,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.widget.Toast;
 
 public class DataService extends IntentService {
 
@@ -51,17 +54,38 @@ public class DataService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
+
+		if (!this.isOnline()) {
+			Log.d(TAG, "No network, not running service");
+			return;
+		}
+
 		this.random = new Random();
 
 		DBHelper dbHelper = new DBHelper(this, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
-		this.db = dbHelper.getWritableDatabase();
 
 		this.fetch();
 		this.parse();
-        this.save();
-		this.downloadPics(this.allURLs());
 
+		this.db = dbHelper.getWritableDatabase();
+
+        this.save();
+        List<String> allURLs = this.allURLs();
+
+        this.db.close();
+
+		this.downloadPics(allURLs);
 		this.broadcastComplete();
+	}
+
+	/**
+	 * Is the device connected to the network?
+	 */
+	private boolean isOnline() {
+		ConnectivityManager connMgr = (ConnectivityManager)
+            this.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		return (networkInfo != null && networkInfo.isConnected());
 	}
 
 	/**
