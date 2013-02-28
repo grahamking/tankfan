@@ -67,8 +67,8 @@ public class MainActivity extends Activity {
 
         aman.setInexactRepeating(
                 AlarmManager.ELAPSED_REALTIME,
-                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                AlarmManager.INTERVAL_HALF_DAY,
+                AlarmManager.INTERVAL_HALF_DAY,
                 alarmIntent);
     }
 

@@ -160,6 +160,7 @@ public class BeerAdapter implements ListAdapter {
 	}
 
 	private String getBreweryPic(String breweryName) {
+        Log.d(TAG, "getBreweryPic: " + breweryName);
 
 		String[] columns = new String[]{"logo"};
 		String[] whereArgs = new String[]{breweryName};
