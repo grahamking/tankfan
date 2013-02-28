@@ -58,7 +58,7 @@ public class DataService extends IntentService {
 
 		this.fetch();
 		this.parse();
-		this.save();
+        this.save();
 		this.downloadPics(this.allURLs());
 
 		this.broadcastComplete();
@@ -107,9 +107,23 @@ public class DataService extends IntentService {
 	}
 
 	/**
-	 * Store this.beers in the database.
+	 * Store data in the database, in a transaction.
 	 */
-	private void save() {
+    private void save() {
+
+        db.beginTransaction();
+        try {
+            this.saveInner();
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+	/**
+	 * Store data in the database.
+	 */
+	private void saveInner() {
 
 		// First wipe all previous data.
 

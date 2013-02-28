@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,15 +30,17 @@ public class BeerAdapter implements ListAdapter {
 
 	private static final String TAG = BeerAdapter.class.getSimpleName();
 
+    Cursor cursor;
 	Context context;
-	SQLiteDatabase db;
-	Cursor cursor;
+    DBHelper helper;
+
+    List<Map<String, String>> data = new ArrayList<Map<String, String>>();
 
 	public BeerAdapter(Context context) {
 		this.context = context;
 
-		DBHelper helper = new DBHelper(this.context, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
-		this.db = helper.getReadableDatabase();
+		this.helper = new DBHelper(this.context, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
+	    SQLiteDatabase db = this.helper.getReadableDatabase();
 
 		this.cursor = db.query(
 				false,	// distinct,
@@ -48,6 +52,28 @@ public class BeerAdapter implements ListAdapter {
 				null, 	// having
 				null,	// order by
 				null);	// limit
+
+        while (this.cursor.moveToNext()) {
+            data.add(this.loadNext());
+        }
+        this.cursor.close();
+        db.close();
+	}
+
+    /**
+     * Load the next item from the cursor into a map.
+     */
+    private Map<String, String> loadNext() {
+		// Object model? What object model?
+		String value;
+		Map<String, String> obj = new HashMap<String, String>();
+
+		for (String col : this.cursor.getColumnNames()) {
+			value = this.cursor.getString(this.cursor.getColumnIndex(col));
+			obj.put(col, value);
+		}
+
+		return obj;
 	}
 
 	public void setPic(ImageView v, String urlStr) {
@@ -86,25 +112,13 @@ public class BeerAdapter implements ListAdapter {
 
 	@Override
 	public int getCount() {
-		return this.cursor.getCount();
+		return this.data.size();
 	}
 
 	@Override
 	public Map<String, String> getItem(int position) {
-
-		this.cursor.moveToPosition(position);
-
-		// Object model? What object model?
-		String value;
-		Map<String, String> obj = new HashMap<String, String>();
-
-		for (String col : this.cursor.getColumnNames()) {
-			value = this.cursor.getString(this.cursor.getColumnIndex(col));
-			obj.put(col, value);
-		}
-
-		return obj;
-	}
+        return this.data.get(position);
+    }
 
 	@Override
 	public long getItemId(int position) {
@@ -162,6 +176,8 @@ public class BeerAdapter implements ListAdapter {
 	private String getBreweryPic(String breweryName) {
         Log.d(TAG, "getBreweryPic: " + breweryName);
 
+	    SQLiteDatabase db = this.helper.getReadableDatabase();
+
 		String[] columns = new String[]{"logo"};
 		String[] whereArgs = new String[]{breweryName};
 
@@ -179,6 +195,8 @@ public class BeerAdapter implements ListAdapter {
 		bCur.moveToFirst();
 		String logo = bCur.getString(bCur.getColumnIndex("logo"));
 		bCur.close();
+
+        db.close();
 
 		return logo;
 	}
