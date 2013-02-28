@@ -28,7 +28,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.support.v4.content.LocalBroadcastManager;
 
 public class DataService extends IntentService {
 
@@ -69,10 +68,8 @@ public class DataService extends IntentService {
 	 * Tell rest of the app (MainActivity) that we're finished fetching.
 	 */
 	private void broadcastComplete() {
-        Log.d(TAG, "broadcastComplete");
         Intent done = new Intent(DataService.DATA_UPDATED);
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        lbm.sendBroadcast(done);
+        sendBroadcast(done);
 	}
 
 	/**
