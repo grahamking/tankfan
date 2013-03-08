@@ -10,50 +10,64 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = DBHelper.class.getSimpleName();
-	
+
 	public static final String DB_NAME = "tankfan";
-	public static final int DB_VERSION = 4;
-	
-	public static final String BEERS_TABLE = "beers";
-	public static final String EVENTS_TABLE = "events";
-	public static final String BREWERIES_TABLE = "breweries";
-	
-	private static final String BEERS_CREATE = "CREATE TABLE " + BEERS_TABLE + "( " +
-			BaseColumns._ID + " integer primary key autoincrement, " +
-			"brewery text, " +
-			"name text, " +
-			"style text, " +
-			"abv text, " +
-			"pic text, " +
-			"url text," +
-			"description text" +
-			")";
-	
-	private static final String EVENTS_CREATE = "CREATE TABLE " + EVENTS_TABLE + "( " +
-			BaseColumns._ID + " integer primary key autoincrement, " +
-			"title text, " +
-			"eventdate text" +
-			")";
-	
-	private static final String BREWERIES_CREATE = "CREATE TABLE " + BREWERIES_TABLE + "( " +
-			BaseColumns._ID + " integer primary key autoincrement, " +
-			"name text, " +
-			"location text, " +
-			"logo text " +
-			")";
-	
+	public static final int DB_VERSION = 5;
+
+	static final String BEERS_TABLE = "beers";
+    static final String[] BEER_COLUMNS = new String[]{
+            "brewery",
+            "name",
+            "style",
+            "abv",
+            "pic",
+            "url",
+            "description"};
+
+	static final String EVENTS_TABLE = "events";
+	static final String[] EVENTS_COLUMNS = new String[]{
+			"title",
+            "eventdate"};
+
+	static final String BREWERIES_TABLE = "breweries";
+	static final String[] BREWERIES_COLUMNS = new String[]{
+			"name",
+            "location",
+            "logo"};
+
 	public DBHelper(Context context, String name, CursorFactory factory, int version) {
 		super(context, name, factory, version);
 	}
-	
+
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		Log.d(TAG, "DBHelper.onCreate");
-		
-		db.execSQL(BEERS_CREATE);
-		db.execSQL(EVENTS_CREATE);
-		db.execSQL(BREWERIES_CREATE);
+
+		db.execSQL(this.makeCreate(BEERS_TABLE, BEER_COLUMNS));
+		db.execSQL(this.makeCreate(EVENTS_TABLE, EVENTS_COLUMNS));
+		db.execSQL(this.makeCreate(BREWERIES_TABLE, BREWERIES_COLUMNS));
 	}
+
+    /**
+     * Make the SQL CREATE statement for the given tableName and columns.
+     * All columns are 'text'.
+     * An integer primary key called BaseColumns._ID is added.
+     */
+    String makeCreate(String tableName, String[] columns) {
+	    StringBuilder res = new StringBuilder("CREATE TABLE " + tableName + " ( ");
+        res.append(BaseColumns._ID + " integer primary key autoincrement, ");
+
+        int colLen = columns.length;
+        for (int i = 0; i < colLen; i++) {
+            res.append(columns[i]);
+            res.append(" text");
+            if (i != (colLen - 1)) {
+                res.append(", ");
+            }
+        }
+        res.append(")");
+        return res.toString();
+    }
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -61,7 +75,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + BEERS_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + BREWERIES_TABLE);
-		
+
 		this.onCreate(db);
 	}
 

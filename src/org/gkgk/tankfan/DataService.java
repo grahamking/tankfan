@@ -40,13 +40,13 @@ public class DataService extends IntentService {
 	private static final String URL = "http://darkcoding.net/tank.json";
 
 	private Random random;
-	private String jsonData;
-
 	private SQLiteDatabase db;
 
-	private JSONArray beerJSON;
-	private JSONArray eventJSON;
-	private JSONArray breweriesJSON;
+	String jsonData;
+
+	JSONArray beerJSON;
+	JSONArray eventJSON;
+	JSONArray breweriesJSON;
 
 	public DataService() {
 		super("org.gkgk.tankfan.DataService");
@@ -114,7 +114,7 @@ public class DataService extends IntentService {
 	/**
 	 * Extract beer and event JSON arrays
 	 */
-	private void parse() {
+	void parse() {
 
 		try {
 			JSONObject jobj = (JSONObject) new JSONTokener(this.jsonData).nextValue();
