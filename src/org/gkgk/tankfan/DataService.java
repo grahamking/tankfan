@@ -37,7 +37,7 @@ public class DataService extends IntentService {
     public static final String DATA_UPDATED = "org.gkgk.tankfan.DATA_UPDATED";
 
 	private static final String TAG = DataService.class.getSimpleName();
-	private static final String URL = "http://darkcoding.net/tank.json";
+	private static final String URL = "http://tank.gkgk.org/v2/tank.json";
 
 	private Random random;
 	private SQLiteDatabase db;
@@ -46,7 +46,7 @@ public class DataService extends IntentService {
 
 	JSONArray beerJSON;
 	JSONArray eventJSON;
-	JSONArray breweriesJSON;
+    String updated;
 
 	public DataService() {
 		super("org.gkgk.tankfan.DataService");
@@ -121,7 +121,7 @@ public class DataService extends IntentService {
 
 			this.beerJSON = jobj.getJSONArray("beers");
 			this.eventJSON = jobj.getJSONArray("events");
-			this.breweriesJSON = jobj.getJSONArray("breweries");
+            this.updated = jobj.getString("updated");
 		}
 		catch (JSONException exc) {
 			Log.e(TAG, "JSONException parsing data above");
@@ -155,41 +155,74 @@ public class DataService extends IntentService {
 
 		db.delete(DBHelper.BEERS_TABLE, null, null);
 		db.delete(DBHelper.EVENTS_TABLE, null, null);
-		db.delete(DBHelper.BREWERIES_TABLE, null, null);
+        db.delete(DBHelper.UPDATED_TABLE, null, null);
 
 		try {
-			this.saveJSON(this.beerJSON, DBHelper.BEERS_TABLE);
-			this.saveJSON(this.eventJSON, DBHelper.EVENTS_TABLE);
-			this.saveJSON(this.breweriesJSON, DBHelper.BREWERIES_TABLE);
+			this.saveJSON(this.beerJSON, DBHelper.BEERS_TABLE, DBHelper.BEERS_COLUMNS);
+			this.saveJSON(this.eventJSON, DBHelper.EVENTS_TABLE, DBHelper.EVENTS_COLUMNS);
 		}
 		catch (JSONException exc) {
 			Log.e(TAG, "JSONException saving.", exc);
 		}
 
+        this.saveUpdated();
+
 	}
 
-	private void saveJSON(JSONArray arr, String tableName) throws JSONException {
+    /**
+     * Write last updated date to db.
+     */
+    void saveUpdated() {
+
+        ContentValues vals = new ContentValues();
+        vals.put("updated", this.updated);
+        this.dbInsert(DBHelper.UPDATED_TABLE, vals);
+    }
+
+	void saveJSON(JSONArray arr, String tableName, String[] cols) throws JSONException {
+
+        List<ContentValues> cvals = this.toContentValues(arr, cols);
+		for (int i = 0; i < cvals.size(); i++) {
+            this.dbInsert(tableName, cvals.get(i));
+        }
+    }
+
+    /**
+     * Turn a json array into a ContentValues, which is a HashMap from
+     * db column name to value, and is what we send to the database to insert.
+     */
+    List<ContentValues> toContentValues(JSONArray arr, String[] columns)
+        throws JSONException {
+
+        List<ContentValues> cvals = new ArrayList<ContentValues>(arr.length());
 
 		for (int i = 0; i < arr.length(); i++) {
 			JSONObject jobj = arr.getJSONObject(i);
 
 			ContentValues vals = new ContentValues();
 
-			Iterator<String> keys = jobj.keys();
-			while (keys.hasNext()) {
-				String key = keys.next();
-				vals.put(key, jobj.getString(key));
-			}
+            for (String col : columns) {
+				vals.put(col, jobj.getString(col));
+            }
 
-			try {
-				db.insertOrThrow(tableName, null, vals);
-			}
-			catch (SQLException exc) {
-				Log.e(TAG, "SQLException saving " + vals +" to database.");
-			}
-
+            cvals.add(vals);
 		}
+
+        return cvals;
 	}
+
+    /**
+     * Actually INSERT into the database.
+     */
+    void dbInsert(String tableName, ContentValues vals) {
+
+        try {
+            db.insertOrThrow(tableName, null, vals);
+        }
+        catch (SQLException exc) {
+            Log.e(TAG, "SQLException saving " + vals +" to database.");
+        }
+    }
 
 	/**
 	 * Fetch contents of a URL.
@@ -235,7 +268,6 @@ public class DataService extends IntentService {
 		List<String> result = new ArrayList<String>();
 
 		result.addAll(this.loadURLs(DBHelper.BEERS_TABLE, "pic"));
-		result.addAll(this.loadURLs(DBHelper.BREWERIES_TABLE, "logo"));
 
 		return result;
 	}
@@ -255,10 +287,12 @@ public class DataService extends IntentService {
 				null,
 				null,
 				null);
+
 		while (cursor.moveToNext()) {
 			String url = cursor.getString(0);
 			result.add(url);
 		}
+        cursor.close();
 
 		return result;
 	}

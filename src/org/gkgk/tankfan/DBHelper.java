@@ -15,13 +15,14 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final int DB_VERSION = 5;
 
 	static final String BEERS_TABLE = "beers";
-    static final String[] BEER_COLUMNS = new String[]{
+    static final String[] BEERS_COLUMNS = new String[]{
             "brewery",
             "name",
             "style",
             "abv",
             "pic",
             "url",
+            "location",
             "description"};
 
 	static final String EVENTS_TABLE = "events";
@@ -29,11 +30,9 @@ public class DBHelper extends SQLiteOpenHelper {
 			"title",
             "eventdate"};
 
-	static final String BREWERIES_TABLE = "breweries";
-	static final String[] BREWERIES_COLUMNS = new String[]{
-			"name",
-            "location",
-            "logo"};
+    static final String UPDATED_TABLE = "updated";
+    static final String[] UPDATED_COLUMNS = new String[] {
+        "updated"};
 
 	public DBHelper(Context context, String name, CursorFactory factory, int version) {
 		super(context, name, factory, version);
@@ -43,9 +42,9 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		Log.d(TAG, "DBHelper.onCreate");
 
-		db.execSQL(this.makeCreate(BEERS_TABLE, BEER_COLUMNS));
+		db.execSQL(this.makeCreate(BEERS_TABLE, BEERS_COLUMNS));
 		db.execSQL(this.makeCreate(EVENTS_TABLE, EVENTS_COLUMNS));
-		db.execSQL(this.makeCreate(BREWERIES_TABLE, BREWERIES_COLUMNS));
+		db.execSQL(this.makeCreate(UPDATED_TABLE, UPDATED_COLUMNS));
 	}
 
     /**
@@ -74,7 +73,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
 		db.execSQL("DROP TABLE IF EXISTS " + BEERS_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE);
-		db.execSQL("DROP TABLE IF EXISTS " + BREWERIES_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + UPDATED_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS breweries");   // From old version
 
 		this.onCreate(db);
 	}

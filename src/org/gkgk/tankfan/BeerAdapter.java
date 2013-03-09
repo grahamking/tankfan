@@ -110,12 +110,12 @@ public class BeerAdapter implements ListAdapter {
         }
 
 		String picURL = obj.get("pic");
-		if (picURL == null || picURL.length() == 0) {
-			picURL = this.getBreweryPic(obj.get("brewery"));
+		if (picURL != null && picURL.length() > 0) {
+		    this.setPic((ImageView) view.findViewById(R.id.beerPic), picURL);
 		}
-		this.setPic((ImageView) view.findViewById(R.id.beerPic), picURL);
 
 		((TextView) view.findViewById(R.id.beerBrewery)).setText(obj.get("brewery"));
+		((TextView) view.findViewById(R.id.beerLocation)).setText(obj.get("location"));
 		((TextView) view.findViewById(R.id.beerName)).setText(obj.get("name"));
 		((TextView) view.findViewById(R.id.beerStyle)).setText(obj.get("style"));
 		((TextView) view.findViewById(R.id.beerABV)).setText(obj.get("abv"));
@@ -141,6 +141,7 @@ public class BeerAdapter implements ListAdapter {
 		return view;
 	}
 
+    /*
 	private String getBreweryPic(String breweryName) {
         Log.d(TAG, "getBreweryPic: " + breweryName);
 
@@ -170,6 +171,7 @@ public class BeerAdapter implements ListAdapter {
 
 		return logo;
 	}
+    */
 
 	@Override
 	public int getItemViewType(int position) {
