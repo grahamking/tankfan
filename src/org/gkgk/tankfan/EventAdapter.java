@@ -22,7 +22,7 @@ public class EventAdapter implements ListAdapter {
 
 	public EventAdapter(Context context) {
 		this.context = context;
-        this.data = new AdapterHelper(context, DBHelper.EVENTS_TABLE).load();
+        this.data = new AdapterHelper(context, DBHelper.EVENTS_TABLE).loadData();
 	}
 
 	@Override
