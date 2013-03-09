@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.os.Bundle;
+import android.os.AsyncTask;
 import android.view.Menu;
 import android.widget.TextView;
 import android.widget.TabHost;
@@ -34,9 +35,7 @@ public class MainActivity extends TabActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
-        // TODO: Remove before production
-        // StrictMode.enableDefaults();
-        // END TODO
+        //StrictMode.enableDefaults();
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -90,72 +89,8 @@ public class MainActivity extends TabActivity {
      * Show the updated date on screen.
      */
     void displayUpdatedDate() {
-        CharSequence updatedDate = this.loadUpdatedDate();
-        if (updatedDate != null && updatedDate.length() != 0) {
-            TextView status = (TextView) findViewById(R.id.status);
-            status.setText("Updated " + updatedDate);
-        }
-    }
 
-    /**
-     * Load the date the remote data was last updated.
-     * Should go in AsyncTask.
-     */
-    CharSequence loadUpdatedDate() {
-
-		DBHelper helper = new DBHelper(
-                this, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
-	    SQLiteDatabase db = helper.getReadableDatabase();
-
-		Cursor cursor = db.query(
-				false,	// distinct,
-                DBHelper.UPDATED_TABLE,
-				null,	// columns
-				null,	// where
-				null,	// where args
-				null,	// group by
-				null, 	// having
-				null,	// order by
-				null);	// limit
-
-        CharSequence updated = null;
-
-        if (cursor.moveToNext()) {
-
-            String dbUpdated = cursor.getString(cursor.getColumnIndex("updated"));
-
-            // Truncate the nanoseconds
-            dbUpdated = dbUpdated.substring(0, 19);
-
-            cursor.close();
-            db.close();
-
-            SimpleDateFormat df = new SimpleDateFormat(
-                    "yyyy-MM-dd'T'HH:mm:ss",
-                    Locale.US);
-            df.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-            Date updatedDate = null;
-            try {
-                updatedDate = df.parse(dbUpdated);
-            }
-            catch (ParseException exc) {
-                Log.e(TAG, "Error parsing date: " + dbUpdated, exc);
-                return null;
-            }
-
-            updated = DateUtils.getRelativeDateTimeString(
-                    this,
-                    updatedDate.getTime(),
-                    DateUtils.DAY_IN_MILLIS,
-                    DateUtils.YEAR_IN_MILLIS,
-                    0);
-        } else {
-            cursor.close();
-            db.close();
-        }
-
-        return updated;
+        new MainActivity.LoadUpdated().execute();
     }
 
     /**
@@ -193,6 +128,86 @@ public class MainActivity extends TabActivity {
 
         public void onReceive(Context context, Intent intent) {
             MainActivity.this.displayUpdatedDate();
+        }
+    }
+
+    /**
+     * Load the updated date from the db and put it on screen.
+     */
+    class LoadUpdated extends AsyncTask<Void, Void, CharSequence> {
+
+        protected CharSequence doInBackground(Void...params) {
+
+            return loadUpdatedDate(MainActivity.this);
+        }
+
+        /**
+        * Load the date the remote data was last updated.
+        */
+        CharSequence loadUpdatedDate(Context context) {
+
+            DBHelper helper = new DBHelper(
+                    context, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
+            SQLiteDatabase db = helper.getReadableDatabase();
+
+            Cursor cursor = db.query(
+                    false,	// distinct,
+                    DBHelper.UPDATED_TABLE,
+                    null,	// columns
+                    null,	// where
+                    null,	// where args
+                    null,	// group by
+                    null, 	// having
+                    null,	// order by
+                    null);	// limit
+
+            CharSequence updated = null;
+
+            if (cursor.moveToNext()) {
+
+                String dbUpdated = cursor.getString(cursor.getColumnIndex("updated"));
+
+                // Truncate the nanoseconds
+                dbUpdated = dbUpdated.substring(0, 19);
+
+                cursor.close();
+                db.close();
+
+                SimpleDateFormat df = new SimpleDateFormat(
+                        "yyyy-MM-dd'T'HH:mm:ss",
+                        Locale.US);
+                df.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                Date updatedDate = null;
+                try {
+                    updatedDate = df.parse(dbUpdated);
+                }
+                catch (ParseException exc) {
+                    Log.e(TAG, "Error parsing date: " + dbUpdated, exc);
+                    return null;
+                }
+
+                updated = DateUtils.getRelativeDateTimeString(
+                        context,
+                        updatedDate.getTime(),
+                        DateUtils.DAY_IN_MILLIS,
+                        DateUtils.YEAR_IN_MILLIS,
+                        0);
+            } else {
+                cursor.close();
+                db.close();
+            }
+
+            return updated;
+        }
+
+        protected void onPostExecute(CharSequence updatedDate) {
+
+            if (updatedDate != null && updatedDate.length() != 0) {
+                TextView status = (TextView) MainActivity.this.findViewById(
+                        R.id.status);
+                status.setText("Updated " + updatedDate);
+            }
         }
     }
 }

@@ -13,7 +13,6 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -30,17 +29,25 @@ public class BeerAdapter implements ListAdapter {
 	private static final String TAG = BeerAdapter.class.getSimpleName();
 
 	Context context;
+    List<Map<String, String>> data;
+    Map<String, Bitmap> images;
 
-    List<Map<String, String>> data = new ArrayList<Map<String, String>>();
+	public BeerAdapter(
+            Context context,
+            List<Map<String, String>> data,
+            Map<String, Bitmap> images) {
 
-	public BeerAdapter(Context context) {
 		this.context = context;
-        this.data = new AdapterHelper(context, DBHelper.BEERS_TABLE).load();
+        this.data = data;
+        this.images = images;
 	}
 
 	public void setPic(ImageView v, String urlStr) {
 
 		String filename = String.valueOf(Math.abs(urlStr.hashCode())) + ".png";
+        v.setImageBitmap(this.images.get(filename));
+
+        /*
 
 		FileInputStream inputStream = null;
 		try {
@@ -60,6 +67,7 @@ public class BeerAdapter implements ListAdapter {
 		catch (IOException exc) {
 			Log.e(TAG, "IOException closing " + filename);
 		}
+        */
 	}
 
 	@Override

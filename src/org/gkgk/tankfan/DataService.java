@@ -325,20 +325,30 @@ public class DataService extends IntentService {
 
 			Bitmap image;
 			try {
-				image = BitmapFactory.decodeStream(newurl.openConnection() .getInputStream());
+				image = BitmapFactory.decodeStream(newurl.openConnection().getInputStream());
 			}
 			catch (IOException exc) {
 				Log.e(TAG, "IOException saving " + urlStr + " data to file.", exc);
 				continue;
 			}
 
+            FileOutputStream outputStream = null;
 			try {
-				FileOutputStream outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+				outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
 				image.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
 			}
 			catch (FileNotFoundException exc) {
 				Log.e(TAG, "FileNotFoundException creating " + filename, exc);
 			}
+
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                }
+                catch (IOException exc) {
+                    // Fine, we won't close it then
+                }
+            }
 		}
 
 	}
