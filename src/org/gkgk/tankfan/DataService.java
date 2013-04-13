@@ -45,7 +45,6 @@ public class DataService extends IntentService {
 	String jsonData;
 
 	JSONArray beerJSON;
-	JSONArray eventJSON;
     String updated;
 
 	public DataService() {
@@ -112,7 +111,7 @@ public class DataService extends IntentService {
 	}
 
 	/**
-	 * Extract beer and event JSON arrays
+	 * Extract beer JSON array
 	 */
 	void parse() {
 
@@ -120,7 +119,6 @@ public class DataService extends IntentService {
 			JSONObject jobj = (JSONObject) new JSONTokener(this.jsonData).nextValue();
 
 			this.beerJSON = jobj.getJSONArray("beers");
-			this.eventJSON = jobj.getJSONArray("events");
             this.updated = jobj.getString("updated");
 		}
 		catch (JSONException exc) {
@@ -154,19 +152,16 @@ public class DataService extends IntentService {
 		// In future we should compare what's there, and notify on new staff pick
 
 		db.delete(DBHelper.BEERS_TABLE, null, null);
-		db.delete(DBHelper.EVENTS_TABLE, null, null);
         db.delete(DBHelper.UPDATED_TABLE, null, null);
 
 		try {
 			this.saveJSON(this.beerJSON, DBHelper.BEERS_TABLE, DBHelper.BEERS_COLUMNS);
-			this.saveJSON(this.eventJSON, DBHelper.EVENTS_TABLE, DBHelper.EVENTS_COLUMNS);
 		}
 		catch (JSONException exc) {
 			Log.e(TAG, "JSONException saving.", exc);
 		}
 
         this.saveUpdated();
-
 	}
 
     /**
@@ -309,7 +304,6 @@ public class DataService extends IntentService {
 
 			File fullpath = new File(getFilesDir(), filename);
 			if (fullpath.exists()) {
-				Log.d(TAG, "Already exists, skipping");
 				continue;
 			}
 

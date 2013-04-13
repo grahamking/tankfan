@@ -30,7 +30,7 @@ import android.util.Log;
 public class MainActivity extends TabActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private UpdateReceiver receiver;
+    //private UpdateReceiver receiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class MainActivity extends TabActivity {
         TextView statusView = (TextView) findViewById(R.id.status);
         statusView.setText(getResources().getText(R.string.loading));
 
-        this.receiver = new UpdateReceiver();
+        //this.receiver = new UpdateReceiver();
 
         this.createTabs();
 
@@ -57,6 +57,7 @@ public class MainActivity extends TabActivity {
         startService(tweetIntent);
     }
 
+    /*
     @Override
     protected void onResume() {
         super.onResume();
@@ -71,6 +72,7 @@ public class MainActivity extends TabActivity {
         super.onPause();
         unregisterReceiver(this.receiver);
     }
+    */
 
     private void createTabs() {
         TabHost host = getTabHost();
@@ -93,7 +95,13 @@ public class MainActivity extends TabActivity {
      */
     void displayUpdatedDate() {
 
-        new MainActivity.LoadUpdated().execute();
+        // Doesn't apply to Twitter view
+        // - need to move to Staff Picks tab only...
+        //new MainActivity.LoadUpdated().execute();
+
+        // ..so for now just make it blank
+        TextView statusView = (TextView) findViewById(R.id.status);
+        statusView.setText("");
     }
 
     /**
@@ -127,12 +135,14 @@ public class MainActivity extends TabActivity {
 
     /* inner classes */
 
+    /*
     class UpdateReceiver extends BroadcastReceiver {
 
         public void onReceive(Context context, Intent intent) {
             MainActivity.this.displayUpdatedDate();
         }
     }
+    */
 
     /**
      * Load the updated date from the db and put it on screen.

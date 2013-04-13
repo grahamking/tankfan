@@ -25,11 +25,6 @@ public class DBHelper extends SQLiteOpenHelper {
             "location",
             "description"};
 
-	static final String EVENTS_TABLE = "events";
-	static final String[] EVENTS_COLUMNS = new String[]{
-			"title",
-            "eventdate"};
-
     static final String TWITTER_TABLE = "twitter";
     static final String[] TWITTER_COLUMNS = new String[]{
             "content",
@@ -49,7 +44,6 @@ public class DBHelper extends SQLiteOpenHelper {
 		Log.d(TAG, "DBHelper.onCreate");
 
 		db.execSQL(this.makeCreate(BEERS_TABLE, BEERS_COLUMNS));
-		db.execSQL(this.makeCreate(EVENTS_TABLE, EVENTS_COLUMNS));
 		db.execSQL(this.makeCreate(UPDATED_TABLE, UPDATED_COLUMNS));
         db.execSQL(this.makeCreate(TWITTER_TABLE, TWITTER_COLUMNS));
 	}
@@ -79,10 +73,12 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
 		db.execSQL("DROP TABLE IF EXISTS " + BEERS_TABLE);
-		db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + UPDATED_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + TWITTER_TABLE);
-		db.execSQL("DROP TABLE IF EXISTS breweries");   // From old version
+
+        // From older versions
+		db.execSQL("DROP TABLE IF EXISTS breweries");
+        db.execSQL("DROP TABLE IF EXISTS events");
 
 		this.onCreate(db);
 	}
