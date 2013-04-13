@@ -23,3 +23,6 @@ proguard/
 
 # ctags
 tags
+
+# Twitter OAuth
+res/values/secret.xml

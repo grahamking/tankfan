@@ -3,6 +3,10 @@ package org.gkgk.tankfan;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 import android.content.Context;
 import android.widget.ListAdapter;
@@ -12,17 +16,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.util.Log;
+import android.text.format.DateUtils;
 
-public class EventAdapter implements ListAdapter {
+public class TwitterAdapter implements ListAdapter {
 
-	private static final String TAG = EventAdapter.class.getSimpleName();
+	private static final String TAG = TwitterAdapter.class.getSimpleName();
 
     Context context;
     List<Map<String, String>> data = new ArrayList<Map<String, String>>();
 
-	public EventAdapter(Context context) {
+	public TwitterAdapter(Context context) {
 		this.context = context;
-        this.data = new AdapterHelper(context, DBHelper.EVENTS_TABLE).loadData();
+        this.data = new AdapterHelper(context, DBHelper.TWITTER_TABLE).loadData();
 	}
 
 	@Override
@@ -33,14 +39,41 @@ public class EventAdapter implements ListAdapter {
 		View view = convertView;
 		if (view == null) {
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = inflater.inflate(R.layout.event_row, null);
+			view = inflater.inflate(R.layout.twitter_row, null);
         }
 
-		((TextView) view.findViewById(R.id.eventTitle)).setText(obj.get("title"));
-		((TextView) view.findViewById(R.id.eventDate)).setText(obj.get("eventdate"));
+        String rel = this.relative(obj.get("created"));
+		((TextView) view.findViewById(R.id.tweetDate)).setText(rel);
+		((TextView) view.findViewById(R.id.tweetContent)).setText(obj.get("content"));
 
 		return view;
 	}
+
+    /**
+     * Parse theDate from ISO 8601, convert to relative date, and
+     * return as string.
+     */
+    String relative(String theDate) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss.SSSZ",
+                Locale.US);
+        Date asDate = null;
+        try {
+            asDate = sdf.parse(theDate);
+        }
+        catch (ParseException exc) {
+            Log.e(TAG, "Error parsing, expected ISO8601: " + theDate, exc);
+            return "";
+        }
+
+        return DateUtils.getRelativeDateTimeString(
+						this.context,
+						asDate.getTime(),
+						DateUtils.MINUTE_IN_MILLIS,
+						DateUtils.WEEK_IN_MILLIS,
+						0).toString();
+    }
 
 	@Override
 	public void registerDataSetObserver(DataSetObserver observer) {

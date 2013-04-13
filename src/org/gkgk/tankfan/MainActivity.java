@@ -52,6 +52,9 @@ public class MainActivity extends TabActivity {
 		Intent fetcherIntent = new Intent(this, DataService.class);
 		startService(fetcherIntent);
         this.setRepeatingService();
+
+        Intent tweetIntent = new Intent(this, TwitterService.class);
+        startService(tweetIntent);
     }
 
     @Override
@@ -78,11 +81,11 @@ public class MainActivity extends TabActivity {
         beerSpec.setContent(beerIntent);
         host.addTab(beerSpec);
 
-        TabSpec eventSpec = host.newTabSpec("EVENTS");
-        eventSpec.setIndicator(getResources().getText(R.string.events));
-        Intent eventIntent = new Intent(this, EventActivity.class);
-        eventSpec.setContent(eventIntent);
-        host.addTab(eventSpec);
+        TabSpec bSpec = host.newTabSpec("TWITTER");
+        bSpec.setIndicator(getResources().getText(R.string.twitter));
+        Intent bIntent = new Intent(this, TwitterActivity.class);
+        bSpec.setContent(bIntent);
+        host.addTab(bSpec);
     }
 
     /**

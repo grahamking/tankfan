@@ -15,7 +15,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,19 +102,13 @@ public class BeerAdapter implements ListAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-        Log.d(TAG, "BeerAdapter.getView. position: " + position +
-                   " converView type: " + convertView);
-
 		Map<String, String> obj = this.getItem(position);
 
 		View view = convertView;
 		if (view == null) {
-            Log.d(TAG, "Creating new R.layout.beer_row");
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			view = inflater.inflate(R.layout.beer_row, null);
-		} else {
-            Log.d(TAG, "Using layout given as convertView");
-        }
+		}
 
 		String picURL = obj.get("pic");
 		if (picURL != null && picURL.length() > 0) {

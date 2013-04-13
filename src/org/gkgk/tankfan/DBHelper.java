@@ -12,7 +12,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = DBHelper.class.getSimpleName();
 
 	public static final String DB_NAME = "tankfan";
-	public static final int DB_VERSION = 5;
+	public static final int DB_VERSION = 6;
 
 	static final String BEERS_TABLE = "beers";
     static final String[] BEERS_COLUMNS = new String[]{
@@ -30,6 +30,12 @@ public class DBHelper extends SQLiteOpenHelper {
 			"title",
             "eventdate"};
 
+    static final String TWITTER_TABLE = "twitter";
+    static final String[] TWITTER_COLUMNS = new String[]{
+            "content",
+            "created",
+            "tags"};
+
     static final String UPDATED_TABLE = "updated";
     static final String[] UPDATED_COLUMNS = new String[] {
         "updated"};
@@ -45,6 +51,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL(this.makeCreate(BEERS_TABLE, BEERS_COLUMNS));
 		db.execSQL(this.makeCreate(EVENTS_TABLE, EVENTS_COLUMNS));
 		db.execSQL(this.makeCreate(UPDATED_TABLE, UPDATED_COLUMNS));
+        db.execSQL(this.makeCreate(TWITTER_TABLE, TWITTER_COLUMNS));
 	}
 
     /**
@@ -74,6 +81,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + BEERS_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + UPDATED_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + TWITTER_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS breweries");   // From old version
 
 		this.onCreate(db);

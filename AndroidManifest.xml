@@ -27,9 +27,10 @@
         </activity>
 
         <activity android:name=".BeerActivity" />
-        <activity android:name=".EventActivity" />
+        <activity android:name=".TwitterActivity" />
 
         <service android:name=".DataService" />
+        <service android:name=".TwitterService" />
 
     </application>
 

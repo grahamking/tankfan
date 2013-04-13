@@ -8,9 +8,9 @@ import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.util.Log;
 
-public class EventActivity extends ListActivity {
+public class TwitterActivity extends ListActivity {
 
-    private static final String TAG = EventActivity.class.getSimpleName();
+    private static final String TAG = TwitterActivity.class.getSimpleName();
 
     private UpdateReceiver receiver;
 
@@ -28,7 +28,7 @@ public class EventActivity extends ListActivity {
     }
 
     private void refreshAdapter() {
-        EventAdapter adapter = new EventAdapter(this);
+        TwitterAdapter adapter = new TwitterAdapter(this);
         setListAdapter(adapter);
     }
 
@@ -36,6 +36,7 @@ public class EventActivity extends ListActivity {
     protected void onResume() {
         super.onResume();
 
+        // TODO: Replace listening for DataService's event with TwitterService
         IntentFilter filter = new IntentFilter();
         filter.addAction(DataService.DATA_UPDATED);
         registerReceiver(this.receiver, filter);
@@ -53,8 +54,8 @@ public class EventActivity extends ListActivity {
     class UpdateReceiver extends BroadcastReceiver {
 
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "EventActivity.UpdateReceiver.onReceive");
-            EventActivity.this.refreshAdapter();
+            Log.d(TAG, "TwitterAdapter.UpdateReceiver.onReceive");
+            TwitterActivity.this.refreshAdapter();
         }
     }
 }
